@@ -6,6 +6,9 @@ authors:
   - family-names: Agu
     given-names: Emanuel Jose
     orcid: "https://orcid.org/0009-0003-9436-1391"
+version: "0.1.0"
+date-released: "2026-04-17"
+# doi: backfill after Zenodo mints the v0.1.0 DOI
 repository-code: "https://github.com/Emanuel-Agu/fua-morphometrics"
 license: MIT
 keywords:
