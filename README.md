@@ -1,5 +1,6 @@
 # fua-morphometrics
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19635759.svg)](https://doi.org/10.5281/zenodo.19635759)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python ≥3.9](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)](scripts/requirements.txt)
 

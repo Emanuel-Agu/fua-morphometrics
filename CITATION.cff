@@ -8,8 +8,9 @@ authors:
     orcid: "https://orcid.org/0009-0003-9436-1391"
 version: "0.1.0"
 date-released: "2026-04-17"
-# doi: backfill after Zenodo mints the v0.1.0 DOI
+doi: "10.5281/zenodo.19635760"
 repository-code: "https://github.com/Emanuel-Agu/fua-morphometrics"
+url: "https://doi.org/10.5281/zenodo.19635760"
 license: MIT
 keywords:
   - urban morphometrics
