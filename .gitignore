@@ -4,6 +4,12 @@ data_external/
 # Generated outputs
 outputs/
 
+# Local archive — private notes, upstream PDFs, working-tree backups
+_archive/
+
+# Tool-specific
+.claude/
+
 # Python
 __pycache__/
 *.py[cod]

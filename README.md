@@ -1,9 +1,12 @@
-# Sapena et al. (2020) Replication
+# fua-morphometrics
 
-Open-source Python 3 replication of the spatio-temporal urban growth analysis methodology from Sapena et al. (2020).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python ≥3.9](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)](scripts/requirements.txt)
 
-**Reference:**
-Sapena, M., Ruiz, L.A., & Taubenböck, H. (2020). Analyzing Links between Spatio-Temporal Metrics of Built-Up Areas and Socio-Economic Indicators on a Semi-Global Scale. *ISPRS International Journal of Geo-Information*, 9(7), 436. https://doi.org/10.3390/ijgi9070436
+Open-source Python 3 **replication and extension** of the spatio-temporal urban morphometrics pipeline from Sapena, Ruiz & Taubenböck (2020). Computes 14+ metrics of urban form, growth, and land-cover change for Functional Urban Areas (FUAs) across 32 countries. Reproduces the original analysis on GHSL-B R2018A and extends it to the current GHSL-B R2023A release.
+
+**Upstream paper:**
+Sapena, M., Ruiz, L. A., & Taubenböck, H. (2020). Analyzing Links between Spatio-Temporal Metrics of Built-Up Areas and Socio-Economic Indicators on a Semi-Global Scale. *ISPRS International Journal of Geo-Information*, 9(7), 436. [doi:10.3390/ijgi9070436](https://doi.org/10.3390/ijgi9070436)
 
 ---
 
@@ -47,15 +50,13 @@ This replication achieves **>99.99% correlation** with the original results acro
 │   ├── utm_zones/               # UTM zone reference
 │   └── preprocessed/            # Sapena's original results (for validation)
 │
-├── original/                    # Sapena's original code (reference)
-│   ├── Code_statistic_analysis/ # Original Python 2.7 scripts
-│   ├── Codes_spatio_temporal_analysis/
-│   └── README.docx
-│
-└── paper/                       # Publication materials
-    ├── Sapena_et_al_2020.pdf    # Full paper
-    └── ijgi-09-00436-s001.pdf   # Supplementary information
+└── original/                    # Sapena's original code (reference)
+    ├── Code_statistic_analysis/ # Original Python 2.7 scripts
+    ├── Codes_spatio_temporal_analysis/
+    └── README.docx
 ```
+
+The paper PDF and supplementary material are not redistributed here — follow the [upstream DOI](https://doi.org/10.3390/ijgi9070436) to retrieve them from the publisher (open access, CC-BY).
 
 ---
 
@@ -170,11 +171,19 @@ All scripts support filtering:
 
 ---
 
+## Citing
+
+If you use this software in academic work, please cite it (see [`CITATION.cff`](CITATION.cff)) along with the original upstream paper:
+
+> Sapena, M., Ruiz, L. A., & Taubenböck, H. (2020). Analyzing Links between Spatio-Temporal Metrics of Built-Up Areas and Socio-Economic Indicators on a Semi-Global Scale. *ISPRS International Journal of Geo-Information*, 9(7), 436. [doi:10.3390/ijgi9070436](https://doi.org/10.3390/ijgi9070436)
+
 ## License
 
-This replication is provided for academic and research purposes.
+Code in this repository is released under the **MIT License** — see [`LICENSE`](LICENSE).
 
-**Original data sources:**
+This is an independent open-source replication and is not affiliated with or endorsed by the original authors.
+
+**Underlying data sources (cite separately if used):**
 - GHSL: European Commission, Joint Research Centre (JRC)
 - GRIP: PBL Netherlands Environmental Assessment Agency
 - CCI Land Cover: European Space Agency (ESA)

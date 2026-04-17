@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+title: "fua-morphometrics: Open-source Python replication and extension of Sapena et al. (2020) spatio-temporal urban morphometrics"
+message: "If you use this software, please cite it as below, along with the upstream paper (see references)."
+type: software
+authors:
+  - family-names: Agu
+    given-names: Emanuel Jose
+    orcid: "https://orcid.org/0009-0003-9436-1391"
+repository-code: "https://github.com/Emanuel-Agu/fua-morphometrics"
+license: MIT
+keywords:
+  - urban morphometrics
+  - functional urban areas
+  - spatio-temporal metrics
+  - landscape expansion index
+  - GHSL
+  - built-up area
+  - spatial analysis
+  - replication
+references:
+  - type: article
+    authors:
+      - family-names: Sapena
+        given-names: Marta
+      - family-names: Ruiz
+        given-names: Luis A.
+      - family-names: Taubenböck
+        given-names: Hannes
+    title: "Analyzing Links between Spatio-Temporal Metrics of Built-Up Areas and Socio-Economic Indicators on a Semi-Global Scale"
+    journal: "ISPRS International Journal of Geo-Information"
+    year: 2020
+    volume: 9
+    issue: 7
+    start: 436
+    doi: "10.3390/ijgi9070436"
