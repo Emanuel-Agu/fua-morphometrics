@@ -12,7 +12,7 @@ Open-source Python 3 implementation of Sapena et al. (2020) urban metrics method
 |--------|-------------|------------|--------|
 | `step1_spatial_metrics_2000.py` | Spatial metrics for T1 (2000) | GHSL | Shapefile + CSV |
 | `step2_spatial_metrics_2014.py` | Spatial metrics for T2 (2014) | GHSL (requires Step 1) | Shapefile + CSV |
-| `step3_road_network.py` | Road network density | OpenStreetMap | Shapefile + CSV |
+| `step3_road_network.py` | Road network density | GRIP | Shapefile |
 | `step4_land_cover.py` | Land cover change metrics | ESA CCI-LC | Shapefile + CSV |
 | `step5_multitemporal_metrics.py` | Multi-temporal urban growth | Steps 1, 2, 3 outputs | Shapefile + CSV |
 
@@ -63,7 +63,7 @@ python3 step1_spatial_metrics_2000.py --fua USA46,USA146,USA37
 - `outputs/Boundaries_SM_2000.csv` - CSV with metrics (no geometry)
 
 **Required data:**
-- GHSL: `data/GHS_BUILT_LDSMT_GLOBE_R2018A_3857_30_V2_0/`
+- GHSL: `data_external/GHS_BUILT_LDSMT_GLOBE_R2018A_3857_30_V2_0/`
 
 ---
 
@@ -97,7 +97,7 @@ python3 step2_spatial_metrics_2014.py --fua USA46,USA146,USA37
 
 ## Step 3: Road Network Density
 
-Calculates road network density from OpenStreetMap data.
+Calculates road network density from GRIP4 global roads data.
 
 **Metrics calculated:**
 - `D_road` - Road density (km/km²)
@@ -116,7 +116,7 @@ python3 step3_road_network.py --country US
 - `outputs/Boundaries_ROADs.csv`
 
 **Required data:**
-- OSM road shapefiles in `data/external/OSM/`
+- GRIP4 road shapefiles in `data_external/GRIP/`
 
 ---
 
@@ -155,7 +155,7 @@ python3 step4_land_cover.py --fua USA46,USA146
 - `outputs/Boundaries_CCI_LC.csv`
 
 **Required data (auto-detected):**
-- Option 1: Multi-temporal file `data/external/CCI_LC/ESACCI-LC-L4-LCCS-Map-300m-P1Y-1992_2015-v2.0.7.tif`
+- Option 1: Multi-temporal file `data_external/CCI_LC/ESACCI-LC-L4-LCCS-Map-300m-P1Y-1992_2015-v2.0.7.tif`
 - Option 2: Single-year files `ESACCI-LC-L4-LCCS-Map-300m-P1Y-2000-v2.0.7.tif` and `...-2014-...tif`
 
 ---
@@ -203,22 +203,20 @@ python3 step5_multitemporal_metrics.py --fua USA46,USA146
 Run scripts in order, as later steps depend on earlier outputs:
 
 ```bash
-cd /path/to/eja-home/replication/scripts
-
-# Step 1: Spatial metrics T1 (2000)
-python3 -u step1_spatial_metrics_2000.py --country US
+# Run from the repository root
+uv run python -u scripts/step1_spatial_metrics_2000.py --country US
 
 # Step 2: Spatial metrics T2 (2014) - requires Step 1
-python3 -u step2_spatial_metrics_2014.py --country US
+uv run python -u scripts/step2_spatial_metrics_2014.py --country US
 
 # Step 3: Road network density
-python3 -u step3_road_network.py --country US
+uv run python -u scripts/step3_road_network.py --country US
 
 # Step 4: Land cover metrics (independent of Steps 1-3)
-python3 -u step4_land_cover.py --country US
+uv run python -u scripts/step4_land_cover.py --country US
 
 # Step 5: Multi-temporal metrics - requires Steps 1, 2, 3
-python3 -u step5_multitemporal_metrics.py --country US
+uv run python -u scripts/step5_multitemporal_metrics.py --country US
 ```
 
 **Tip:** Use `-u` flag for unbuffered output to see real-time progress.

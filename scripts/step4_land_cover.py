@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Step 4: Land Cover Metrics from CCI-LC
 
@@ -9,28 +8,22 @@ and change percentages for each FUA.
 Reference: Sapena et al. (2020) https://doi.org/10.3390/ijgi9070436
 Data source CCI-LC: ftp://anon-ftp.ceda.ac.uk/neodc/esacci/
 
-Required: CCI Land Cover data must be downloaded and placed in DATA/
+Required: CCI Land Cover data must be downloaded and placed in data_external/CCI_LC/
 """
 
-import os
+import argparse
 import sys
 import time
-import argparse
-import numpy as np
+
 import geopandas as gpd
-import pandas as pd
+import numpy as np
 import rasterio
-from pathlib import Path
+
+from utils import BOUNDARIES_PATH as BOUNDARIES_DIR
 
 # Import local utilities
-from utils import (
-    PROJECT_ROOT, DATA_PATH, OUTPUT_PATH,
-    BOUNDARIES_PATH as BOUNDARIES_DIR,
-    UTM_ZONES_PATH as UTM_ZONES_DIR,
-    DATA_EXTERNAL_PATH,
-    clip_raster_to_geometry, reclassify_raster, polygonize_raster,
-    ensure_dir
-)
+from utils import DATA_EXTERNAL_PATH, OUTPUT_PATH, ensure_dir, polygonize_raster
+from utils import UTM_ZONES_PATH as UTM_ZONES_DIR
 
 # =============================================================================
 # Configuration
@@ -61,9 +54,9 @@ CCI_LC_BANDS = {
     2014: 23   # Band 23 = year 2014
 }
 
-# Output directories
-CCI_4326_DIR = ensure_dir(OUTPUT_PATH / "CCI_4326")
-VEC_CCI_DIR = ensure_dir(OUTPUT_PATH / "Vec_CCI")
+# Output directories (created in main() before processing)
+CCI_4326_DIR = OUTPUT_PATH / "CCI_4326"
+VEC_CCI_DIR = OUTPUT_PATH / "Vec_CCI"
 
 # Output shapefile with results
 OUTPUT_SHP = OUTPUT_PATH / "Boundaries_CCI_LC.shp"
@@ -140,7 +133,7 @@ def check_cci_data():
         return format_type, data_source
 
     elif format_type == 'single_year':
-        print(f"  Found single-year CCI files:")
+        print("  Found single-year CCI files:")
         for year, path in data_source.items():
             print(f"    {year}: {path.name}")
         return format_type, data_source
@@ -331,11 +324,11 @@ def process_fua(fua_code, fua_4326, utm_zones_gdf, results_gdf, cci_format='sing
         # =================================================================
         # Step 1: Get UTM zone
         # =================================================================
-        print(f"  Determining UTM zone...")
+        print("  Determining UTM zone...")
         centroid = fua_geometry.centroid
         epsg = None
 
-        for idx, row in utm_zones_gdf.iterrows():
+        for _idx, row in utm_zones_gdf.iterrows():
             if row.geometry.contains(centroid):
                 epsg = int(row['EPSG'])
                 break
@@ -434,7 +427,7 @@ def process_fua(fua_code, fua_4326, utm_zones_gdf, results_gdf, cci_format='sing
         # =================================================================
         # Step 3: Calculate change percentages
         # =================================================================
-        print(f"  Calculating change percentages...")
+        print("  Calculating change percentages...")
 
         for i in range(1, 8):
             area_t1 = 0.0
@@ -451,7 +444,7 @@ def process_fua(fua_code, fua_4326, utm_zones_gdf, results_gdf, cci_format='sing
             # Change as percentage of FUA area
             metrics[f'CP_LC{i}'] = ((area_t2 - area_t1) / area_km2) * 100
 
-        print(f"  Metrics calculated successfully.")
+        print("  Metrics calculated successfully.")
 
     except Exception as e:
         print(f"  ERROR processing FUA {fua_code}: {e}")
@@ -494,6 +487,10 @@ def main():
     if cci_format is None:
         sys.exit(1)
 
+    # Ensure output directories exist before writing
+    for d in (OUTPUT_PATH, CCI_4326_DIR, VEC_CCI_DIR):
+        ensure_dir(d)
+
     # Initialize output
     results_gdf = initialize_output_shapefile()
 
@@ -532,7 +529,7 @@ def main():
         fua_4326 = boundaries_4326[boundaries_4326['fuacode_si'] == fua_code].copy()
 
         if len(fua_4326) == 0:
-            print(f"  WARNING: FUA not found in boundaries. Skipping...")
+            print("  WARNING: FUA not found in boundaries. Skipping...")
             continue
 
         # Process FUA with detected CCI format
@@ -565,7 +562,7 @@ def main():
     # Print summary
     total_time = time.time() - start_time
     print("\n" + "=" * 60)
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Total time: {total_time/60:.2f} minutes")
     print(f"Output: {OUTPUT_SHP}")
     print(f"Output: {OUTPUT_CSV}")

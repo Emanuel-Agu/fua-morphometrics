@@ -26,7 +26,7 @@ The original Sapena et al. (2020) results are stored as CSV files in `data/prepr
 | `Spatiotemp_metrics.csv` | Multi-temporal metrics | 608 | UCR, AWMEI, AWMAI |
 | `Pugi.csv` | PUGI composite index | 599 | PUGI |
 
-The replication scripts generate shapefiles in `replication/outputs/` with the same metric columns. Validation joins datasets on `fuacode_si` and computes:
+The replication scripts generate shapefiles in `outputs/` with the same metric columns. Validation joins datasets on `fuacode_si` and computes:
 - **Pearson correlation (r)** - measures linear relationship
 - **Mean Absolute Error (MAE)** - average magnitude of differences
 - **Percentage within tolerance** - proportion within ±X% of expected
@@ -128,15 +128,13 @@ Note: These differences are primarily driven by the ER_UC_T2 (Elongation Ratio) 
 ## Running the Validation
 
 ```bash
-cd /path/to/eja-home/replication/scripts
-
-# Run step 4 for all FUAs (or filter by country)
-python3 step4_land_cover.py              # All 599 FUAs
-python3 step4_land_cover.py --country US # US only (162 FUAs)
-python3 step4_land_cover.py --fua USA01,USA02  # Specific FUAs
+# Run from the repository root
+uv run python scripts/step4_land_cover.py              # All 599 FUAs
+uv run python scripts/step4_land_cover.py --country US # US only (162 FUAs)
+uv run python scripts/step4_land_cover.py --fua USA01,USA02  # Specific FUAs
 
 # Run validation script
-python3 validate_outputs.py
+uv run python scripts/validate_outputs.py
 ```
 
 ### Step 4 Performance

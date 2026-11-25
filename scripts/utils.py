@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Utility functions for spatio-temporal analysis of urban growth.
 
@@ -8,24 +7,23 @@ original Sapena et al. (2020) analysis pipeline.
 Reference: https://doi.org/10.3390/ijgi9070436
 """
 
-import os
-import numpy as np
-import geopandas as gpd
-import rasterio
-from rasterio.mask import mask
-from rasterio.features import shapes
-from rasterio.warp import calculate_default_transform, reproject, Resampling
-from shapely.geometry import Point, box, shape, mapping
-from shapely import minimum_rotated_rectangle, unary_union
 import math
 from pathlib import Path
+
+import geopandas as gpd
+import numpy as np
+import rasterio
+from rasterio.features import shapes
+from rasterio.mask import mask
+from shapely import minimum_rotated_rectangle, unary_union
+from shapely.geometry import Point, shape
 
 # =============================================================================
 # Configuration
 # =============================================================================
 
-# Project root (eja-home branch)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project root (repository root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Data paths
 DATA_PATH = PROJECT_ROOT / "data"
@@ -38,10 +36,7 @@ DATA_EXTERNAL_PATH = PROJECT_ROOT / "data_external"
 GHSL_PATH = DATA_EXTERNAL_PATH / "GHS_BUILT_LDSMT_GLOBE_R2018A_3857_30_V2_0"
 
 # Output paths
-OUTPUT_PATH = PROJECT_ROOT / "replication" / "outputs"
-
-# Ensure output directories exist
-OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
+OUTPUT_PATH = PROJECT_ROOT / "outputs"
 
 # Legacy alias for backward compatibility
 BASE_PATH = PROJECT_ROOT
@@ -506,7 +501,7 @@ def get_raster_value_counts(raster_path):
     with rasterio.open(raster_path) as src:
         data = src.read(1)
         values, counts = np.unique(data, return_counts=True)
-        return dict(zip(values.astype(int), counts.astype(int)))
+        return dict(zip(values.astype(int), counts.astype(int), strict=True))
 
 
 # =============================================================================
@@ -563,7 +558,7 @@ def lookup_utm_from_shapefile(point_geometry, utm_zones_path):
     utm_zones = gpd.read_file(utm_zones_path)
 
     # Find intersecting zone
-    for idx, row in utm_zones.iterrows():
+    for _idx, row in utm_zones.iterrows():
         if row.geometry.contains(point_geometry):
             return int(row['EPSG'])
 
