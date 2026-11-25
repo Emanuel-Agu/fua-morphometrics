@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19635759.svg)](https://doi.org/10.5281/zenodo.19635759)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Python ≥3.9](https://img.shields.io/badge/python-%E2%89%A53.9-blue.svg)](scripts/requirements.txt)
+[![Python ≥3.11](https://img.shields.io/badge/python-%E2%89%A53.11-blue.svg)](pyproject.toml)
 
 Open-source Python 3 **replication and extension** of the spatio-temporal urban morphometrics pipeline from Sapena, Ruiz & Taubenböck (2020). Computes 14+ metrics of urban form, growth, and land-cover change for Functional Urban Areas (FUAs) across 32 countries. Reproduces the original analysis on GHSL-B R2018A and extends it to the current GHSL-B R2023A release.
 
@@ -31,7 +31,7 @@ This replication achieves **>99.99% correlation** with the original results acro
 
 | Original (Sapena) | This Replication |
 |-------------------|------------------|
-| Python 2.7 | Python 3.9+ |
+| Python 2.7 | Python 3.11+ |
 | ArcPy / ArcGIS | geopandas, rasterio, shapely |
 | Windows only | Cross-platform (macOS, Linux, Windows) |
 | IndiFrag toolkit | Open-source implementations |
@@ -75,9 +75,18 @@ The paper PDF and supplementary material are not redistributed here — follow t
 
 ### 1. Install dependencies
 
+Using [`uv`](https://docs.astral.sh/uv/) (recommended):
+
 ```bash
-cd scripts
-pip install -r requirements.txt
+git clone https://github.com/Emanuel-Agu/fua-morphometrics.git
+cd fua-morphometrics
+uv sync --dev
+```
+
+Run the test suite to verify the environment:
+
+```bash
+uv run pytest
 ```
 
 ### 2. Download external data
@@ -100,28 +109,26 @@ Create a `data_external/` folder and download the following datasets:
 
 ### 3. Run the analysis
 
-Execute scripts in order:
+Execute scripts in order from the repository root (outputs are written to `outputs/`):
 
 ```bash
-cd scripts
-
 # Step 1: Spatial metrics for year 2000
-python3 -u step1_spatial_metrics_2000.py --country US
+uv run python -u scripts/step1_spatial_metrics_2000.py --country US
 
 # Step 2: Spatial metrics for year 2014 (requires Step 1)
-python3 -u step2_spatial_metrics_2014.py --country US
+uv run python -u scripts/step2_spatial_metrics_2014.py --country US
 
 # Step 3: Road network density
-python3 -u step3_road_network.py --country US
+uv run python -u scripts/step3_road_network.py --country US
 
 # Step 4: Land cover change metrics
-python3 -u step4_land_cover.py --country US
+uv run python -u scripts/step4_land_cover.py --country US
 
 # Step 5: Multi-temporal urban growth (requires Steps 1-3)
-python3 -u step5_multitemporal_metrics.py --country US
+uv run python -u scripts/step5_multitemporal_metrics.py --country US
 
 # Validate outputs against Sapena's results
-python3 validate_outputs.py
+uv run python scripts/validate_outputs.py
 ```
 
 Use `-u` for unbuffered output to see real-time progress.

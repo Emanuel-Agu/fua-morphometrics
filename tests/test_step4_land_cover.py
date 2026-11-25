@@ -1,36 +1,31 @@
-# -*- coding: utf-8 -*-
 """
 Unit tests for step4_land_cover.py
 
 Tests the helper functions for CCI Land Cover processing.
 """
 
-import os
-import sys
 import tempfile
-import numpy as np
-import geopandas as gpd
-import rasterio
 from pathlib import Path
-from shapely.geometry import box, Polygon
-import pytest
 
-# Add scripts directory to path
-sys.path.insert(0, str(Path(__file__).parent))
+import geopandas as gpd
+import numpy as np
+import pytest
+import rasterio
+from shapely.geometry import box
 
 from step4_land_cover import (
-    reclassify_cci,
-    calc_lc_density,
-    RECLASS_CCI,
-    detect_cci_format,
-    CCI_LC_MULTITEMPORAL,
+    CCI_LC_BANDS,
     CCI_LC_SINGLE_YEAR,
-    CCI_LC_BANDS
+    RECLASS_CCI,
+    calc_lc_density,
+    detect_cci_format,
+    reclassify_cci,
 )
 from utils import (
-    PROJECT_ROOT, DATA_PATH, OUTPUT_PATH,
-    BOUNDARIES_PATH, UTM_ZONES_PATH,
-    polygonize_raster
+    BOUNDARIES_PATH,
+    DATA_PATH,
+    PROJECT_ROOT,
+    UTM_ZONES_PATH,
 )
 
 
@@ -254,9 +249,7 @@ class TestReclassMapping:
 
     def test_all_classes_defined(self):
         """Test that all 7 classes are defined in the mapping."""
-        all_values = set()
-        for key, value in RECLASS_CCI.items():
-            all_values.add(value)
+        all_values = set(RECLASS_CCI.values())
 
         expected_classes = {1, 2, 3, 4, 5, 6, 7}
         assert expected_classes == all_values, f"Missing classes: {expected_classes - all_values}"
