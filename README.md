@@ -11,6 +11,16 @@ Sapena, M., Ruiz, L. A., & Taubenböck, H. (2020). Analyzing Links between Spati
 
 ---
 
+## Credit: what comes from the original study and what is new here
+
+`fua-morphometrics` is replication software. **The method and the analysis pipeline belong to Sapena, Ruiz & Taubenböck (2020)**: the choice of metrics, the Functional Urban Area sample, the data sources and the step 1–5 workflow are theirs. Their spatial metrics are computed with the IndiFrag toolbox (Sapena & Ruiz 2015, [doi:10.4995/raet.2015.3476](https://doi.org/10.4995/raet.2015.3476)).
+
+- **New here:** the Python 3 code in `scripts/`, written by the author to reproduce that pipeline with open-source libraries (geopandas, rasterio, shapely) instead of Python 2.7 and ArcPy, and the extension to GHSL-B R2023A. It contains no code from the original scripts; a line-by-line comparison (November 2026) found no shared lines.
+- **Not ours:** `original/` holds the original authors' code and `data/preprocessed/` their published results, included for reference and validation. They are not covered by this repository's MIT license.
+- **Development.** The code was written by the author with the assistance of Anthropic's Claude (Claude Opus 4.5 and 4.7, through Claude Code), as recorded in the commit history; the author reviewed and validated all code.
+
+---
+
 ## Validation
 
 This replication achieves **>99.99% correlation** with the original results across all metrics. See [VALIDATION_REPORT.md](VALIDATION_REPORT.md) for detailed validation results.
