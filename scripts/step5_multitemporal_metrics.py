@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Step 5: Multi-Temporal Metrics (2000-2014)
 
@@ -15,23 +14,18 @@ Reference: Sapena et al. (2020) https://doi.org/10.3390/ijgi9070436
 Required: Steps 1, 2, and 3 must be run first.
 """
 
-import os
+import argparse
 import sys
 import time
-import argparse
-import numpy as np
+
 import geopandas as gpd
-import pandas as pd
-from pathlib import Path
+import numpy as np
 from shapely.ops import unary_union
 
+from utils import BOUNDARIES_PATH as BOUNDARIES_DIR
+
 # Import local utilities
-from utils import (
-    PROJECT_ROOT, DATA_PATH, OUTPUT_PATH,
-    BOUNDARIES_PATH as BOUNDARIES_DIR,
-    calc_landscape_expansion_index, classify_growth_type,
-    ensure_dir
-)
+from utils import OUTPUT_PATH, classify_growth_type, ensure_dir
 
 # =============================================================================
 # Configuration
@@ -45,8 +39,8 @@ VEC_00_DIR = OUTPUT_PATH / "Vec_00"
 VEC_14_DIR = OUTPUT_PATH / "Vec_14"
 ROADS_PJ_DIR = OUTPUT_PATH / "ROADs_PJ"
 
-# Output directories
-VEC_00_14_DIR = ensure_dir(OUTPUT_PATH / "Vec_00_14")
+# Output directories (created in main() before processing)
+VEC_00_14_DIR = OUTPUT_PATH / "Vec_00_14"
 
 # Output shapefile with results
 OUTPUT_SHP = OUTPUT_PATH / "Boundaries_MT_2000_2014.shp"
@@ -83,7 +77,6 @@ def classify_temporal_change(gdf_t1, gdf_t2):
     GeoDataFrame
         Combined T1 and T2 with temporal classification
     """
-    from shapely.geometry import MultiPolygon
     from shapely.validation import make_valid
 
     # Create unified geometries for faster operations
@@ -183,7 +176,7 @@ def calc_lei_for_new_patches(change_gdf):
     """
     Calculate Landscape Expansion Index for new patches.
 
-    LEI = (perimeter - shared_boundary) / perimeter
+    LEI = shared_boundary / perimeter
 
     Parameters
     ----------
@@ -291,7 +284,7 @@ def calc_awmai(new_patches_gdf, roads_gdf, total_new_area):
 
     # Calculate weighted distance for outlying patches
     weighted_dist_out = 0.0
-    for idx, row in outlying.iterrows():
+    for _idx, row in outlying.iterrows():
         distance = row.geometry.distance(roads_union)
         area = row.geometry.area
         # Weight: (area * 100) / ((distance + 1) * total_new_area)
@@ -299,7 +292,7 @@ def calc_awmai(new_patches_gdf, roads_gdf, total_new_area):
 
     # Calculate weighted area for adjacent patches
     weighted_area_adj = 0.0
-    for idx, row in adjacent.iterrows():
+    for _idx, row in adjacent.iterrows():
         area = row.geometry.area
         weighted_area_adj += (area * 100) / total_new_area
 
@@ -358,18 +351,18 @@ def process_fua(fua_code, results_gdf):
         # =================================================================
         # Step 1: Find input files from Steps 1 and 2
         # =================================================================
-        print(f"  Loading T1 and T2 data...")
+        print("  Loading T1 and T2 data...")
 
         # Find T1 (2000) file
         t1_files = list(VEC_00_DIR.glob(f"BUILT_{fua_code}_2000_*.shp"))
         if not t1_files:
-            print(f"  WARNING: T1 file not found. Run Step 1 first.")
+            print("  WARNING: T1 file not found. Run Step 1 first.")
             return metrics
 
         # Find T2 (2014) file
         t2_files = list(VEC_14_DIR.glob(f"BUILT_{fua_code}_2014_*.shp"))
         if not t2_files:
-            print(f"  WARNING: T2 file not found. Run Step 2 first.")
+            print("  WARNING: T2 file not found. Run Step 2 first.")
             return metrics
 
         gdf_t1 = gpd.read_file(t1_files[0])
@@ -384,7 +377,7 @@ def process_fua(fua_code, results_gdf):
         # =================================================================
         # Step 2: Calculate Urban Change Rate (UCR)
         # =================================================================
-        print(f"  Calculating UCR...")
+        print("  Calculating UCR...")
 
         area_t1 = gdf_t1.geometry.area.sum()
         area_t2 = gdf_t2.geometry.area.sum()
@@ -397,7 +390,7 @@ def process_fua(fua_code, results_gdf):
         # =================================================================
         # Step 3: Create change map and classify
         # =================================================================
-        print(f"  Creating change map...")
+        print("  Creating change map...")
 
         change_gdf = classify_temporal_change(gdf_t1, gdf_t2)
 
@@ -408,7 +401,7 @@ def process_fua(fua_code, results_gdf):
         # =================================================================
         # Step 4: Calculate LEI and classify growth types
         # =================================================================
-        print(f"  Calculating LEI and classifying growth...")
+        print("  Calculating LEI and classifying growth...")
 
         change_gdf = calc_lei_for_new_patches(change_gdf)
 
@@ -419,7 +412,7 @@ def process_fua(fua_code, results_gdf):
         ]
 
         if len(new_patches) == 0:
-            print(f"  No new patches found.")
+            print("  No new patches found.")
             # Save updated change map
             change_gdf.to_file(output_change)
             return metrics
@@ -429,11 +422,11 @@ def process_fua(fua_code, results_gdf):
         # =================================================================
         # Step 5: Calculate AWMEI
         # =================================================================
-        print(f"  Calculating AWMEI...")
+        print("  Calculating AWMEI...")
 
         # AWMEI = sum(LEI_i * (area_i / total_new_area) * 100)
         awmei = 0.0
-        for idx, row in new_patches.iterrows():
+        for _idx, row in new_patches.iterrows():
             lei = row['LEI']
             area = row.geometry.area
             awmei += lei * (area / total_new_area) * 100
@@ -444,7 +437,7 @@ def process_fua(fua_code, results_gdf):
         # =================================================================
         # Step 6: Calculate AWMAI
         # =================================================================
-        print(f"  Calculating AWMAI...")
+        print("  Calculating AWMAI...")
 
         # Find road network file
         road_files = list(ROADS_PJ_DIR.glob(f"ROAD_{fua_code}_*.shp"))
@@ -460,12 +453,12 @@ def process_fua(fua_code, results_gdf):
             metrics['AWMAI'] = awmai
             print(f"    AWMAI: {awmai:.2f}")
         else:
-            print(f"    WARNING: Road network not found. AWMAI not calculated.")
+            print("    WARNING: Road network not found. AWMAI not calculated.")
 
         # Save updated change map with growth types
         change_gdf.to_file(output_change)
 
-        print(f"  Metrics calculated successfully.")
+        print("  Metrics calculated successfully.")
 
     except Exception as e:
         print(f"  ERROR processing FUA {fua_code}: {e}")
@@ -511,6 +504,10 @@ def main():
         print(f"\nERROR: Step 2 outputs not found at:\n{VEC_14_DIR}")
         print("\nPlease run Step 2 first.")
         sys.exit(1)
+
+    # Ensure output directories exist before writing
+    for d in (OUTPUT_PATH, VEC_00_14_DIR):
+        ensure_dir(d)
 
     # Initialize output
     results_gdf = initialize_output_shapefile()
@@ -566,7 +563,7 @@ def main():
     # Print summary
     total_time = time.time() - start_time
     print("\n" + "=" * 60)
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Total time: {total_time/60:.2f} minutes")
     print(f"Output: {OUTPUT_SHP}")
     print(f"Output: {OUTPUT_CSV}")

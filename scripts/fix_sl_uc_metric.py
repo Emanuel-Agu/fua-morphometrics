@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Post-processing script to fix SL_UC metrics in existing outputs.
 
@@ -11,14 +10,15 @@ Boundaries_SM shapefiles.
 """
 
 import argparse
+from pathlib import Path
+
 import geopandas as gpd
 import pandas as pd
-from pathlib import Path
 from shapely.ops import unary_union
 
 # Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-OUTPUT_PATH = PROJECT_ROOT / "replication" / "outputs"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+OUTPUT_PATH = PROJECT_ROOT / "outputs"
 
 
 def recalculate_sl_uc(fua_code, vec_dir, year):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Validation Script: Compare Open-Source Outputs with Sapena's Preprocessed Data
 
@@ -8,22 +7,22 @@ with the original preprocessed data from Sapena et al. (2020).
 The .Rda files have been converted to .csv for Python compatibility.
 """
 
-import sys
+from pathlib import Path
+
+import geopandas as gpd
 import numpy as np
 import pandas as pd
-import geopandas as gpd
-from pathlib import Path
 
 # =============================================================================
 # Configuration
 # =============================================================================
 
-# Project root (eja-home branch)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Project root (repository root)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Paths
 DATA_PATH = PROJECT_ROOT / "data"
-OUTPUT_PATH = PROJECT_ROOT / "replication" / "outputs"
+OUTPUT_PATH = PROJECT_ROOT / "outputs"
 PREPROCESSED_PATH = DATA_PATH / "preprocessed"
 
 # Tolerance for numeric comparisons (percentage difference)
@@ -52,7 +51,7 @@ def compare_metrics(df_expected, df_actual, metric_cols, id_col='fuacode_si'):
     common_cols = list(set(exp_cols) & set(act_cols))
 
     if not common_cols:
-        print(f"  No common metric columns found.")
+        print("  No common metric columns found.")
         print(f"  Expected has: {exp_cols}")
         print(f"  Actual has: {act_cols}")
         return pd.DataFrame(), pd.DataFrame()

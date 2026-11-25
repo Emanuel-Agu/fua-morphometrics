@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Step 3: Road Network Density Metrics
 
@@ -8,7 +7,7 @@ Calculates road network density for each FUA using GRIP dataset.
 Reference: Sapena et al. (2020) https://doi.org/10.3390/ijgi9070436
 Data source GRIP: https://www.globio.info/download-grip-dataset
 
-Required: GRIP road network shapefiles must be downloaded and placed in DATA/GRIP/
+Required: GRIP road network shapefiles must be downloaded and placed in data_external/GRIP/
 
 Usage:
     python step3_road_network.py                    # Process all FUAs
@@ -16,26 +15,20 @@ Usage:
     python step3_road_network.py --country USA --workers 4  # Parallel processing
 """
 
-import os
+import argparse
 import sys
 import time
-import argparse
-import numpy as np
-import geopandas as gpd
-import pandas as pd
-from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from shapely.prepared import prep
-from shapely.strtree import STRtree
+
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+
+from utils import BOUNDARIES_PATH as BOUNDARIES_DIR
 
 # Import local utilities
-from utils import (
-    PROJECT_ROOT, DATA_PATH, OUTPUT_PATH,
-    BOUNDARIES_PATH as BOUNDARIES_DIR,
-    UTM_ZONES_PATH as UTM_ZONES_DIR,
-    DATA_EXTERNAL_PATH,
-    ensure_dir
-)
+from utils import DATA_EXTERNAL_PATH, OUTPUT_PATH, ensure_dir
+from utils import UTM_ZONES_PATH as UTM_ZONES_DIR
 
 # =============================================================================
 # Configuration
@@ -51,9 +44,9 @@ FUA_DIR = OUTPUT_PATH / "FUAs"
 # Download from: https://www.globio.info/download-grip-dataset
 GRIP_PATH = DATA_EXTERNAL_PATH / "GRIP"
 
-# Output directories
-ROADS_DIR = ensure_dir(OUTPUT_PATH / "ROADs")
-ROADS_PJ_DIR = ensure_dir(OUTPUT_PATH / "ROADs_PJ")
+# Output directories (created in main() before processing)
+ROADS_DIR = OUTPUT_PATH / "ROADs"
+ROADS_PJ_DIR = OUTPUT_PATH / "ROADs_PJ"
 
 # Output shapefile with results
 OUTPUT_SHP = OUTPUT_PATH / "Boundaries_ROADs.shp"
@@ -108,14 +101,8 @@ def clip_roads_fast(roads_gdf, fua_geometry):
     if len(roads_gdf) == 0:
         return roads_gdf
 
-    # Use prepared geometry for faster intersection tests
-    prepared_fua = prep(fua_geometry)
-
-    # Build spatial index
+    # Build spatial index and find candidate roads
     roads_gdf = roads_gdf.copy()
-    roads_gdf.sindex  # Ensure spatial index is built
-
-    # Find candidate roads using spatial index
     possible_matches_idx = list(roads_gdf.sindex.intersection(fua_geometry.bounds))
     if not possible_matches_idx:
         return roads_gdf.iloc[0:0]  # Empty GeoDataFrame with same schema
@@ -251,7 +238,7 @@ def process_fua(fua_code, fua_4326, grip_files, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 1: Find ALL GRIP files that contain roads for this FUA
         # =================================================================
-        print(f"  Finding GRIP data for FUA...")
+        print("  Finding GRIP data for FUA...")
 
         all_roads = []
         for grip_path in grip_files:
@@ -263,7 +250,7 @@ def process_fua(fua_code, fua_4326, grip_files, utm_zones_gdf, results_gdf):
                 all_roads.append(grip_bounds)
 
         if not all_roads:
-            print(f"  No GRIP data found for this FUA.")
+            print("  No GRIP data found for this FUA.")
             return metrics
 
         # Combine roads from all matching GRIP files
@@ -282,7 +269,7 @@ def process_fua(fua_code, fua_4326, grip_files, utm_zones_gdf, results_gdf):
         roads_clipped = clip_roads_fast(grip_gdf, fua_geometry)
 
         if len(roads_clipped) == 0:
-            print(f"  No roads after clipping.")
+            print("  No roads after clipping.")
             return metrics
 
         print(f"  Clipped to {len(roads_clipped)} road segments")
@@ -294,13 +281,13 @@ def process_fua(fua_code, fua_4326, grip_files, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 3: Project to UTM
         # =================================================================
-        print(f"  Projecting to UTM...")
+        print("  Projecting to UTM...")
 
         # Get UTM zone
         centroid = fua_geometry.centroid
         epsg = None
 
-        for idx, row in utm_zones_gdf.iterrows():
+        for _idx, row in utm_zones_gdf.iterrows():
             if row.geometry.contains(centroid):
                 epsg = int(row['EPSG'])
                 break
@@ -338,7 +325,7 @@ def process_fua(fua_code, fua_4326, grip_files, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 5: Calculate road density
         # =================================================================
-        print(f"  Calculating road density...")
+        print("  Calculating road density...")
 
         density = calc_road_density(roads_utm, area_km2)
         metrics['D_road'] = density
@@ -420,10 +407,14 @@ def main():
         print(f"\nERROR: GRIP road data not found at:\n{GRIP_PATH}")
         print("\nPlease download GRIP data from:")
         print("  https://www.globio.info/download-grip-dataset")
-        print("\nExtract the regional shapefiles to DATA/GRIP/")
+        print("\nExtract the regional shapefiles to data_external/GRIP/")
         sys.exit(1)
 
     print(f"\nFound {len(grip_files)} GRIP datasets")
+
+    # Ensure output directories exist before writing
+    for d in (OUTPUT_PATH, ROADS_DIR, ROADS_PJ_DIR):
+        ensure_dir(d)
 
     # Initialize output
     results_gdf = initialize_output_shapefile()
@@ -496,7 +487,7 @@ def main():
             fua_4326 = boundaries_4326[boundaries_4326['fuacode_si'] == fua_code].copy()
 
             if len(fua_4326) == 0:
-                print(f"  WARNING: FUA not found in boundaries. Skipping...")
+                print("  WARNING: FUA not found in boundaries. Skipping...")
                 continue
 
             # Process FUA
@@ -528,7 +519,7 @@ def main():
     # Print summary
     total_time = time.time() - start_time
     print("\n" + "=" * 60)
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Total time: {total_time/60:.2f} minutes")
     print(f"FUAs processed: {n_fuas}")
     print(f"Output: {output_path}")

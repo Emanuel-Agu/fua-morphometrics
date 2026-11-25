@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Step 1: Spatial Metrics from GHSL for Year 2000 (T1)
 
@@ -9,33 +8,40 @@ for the year 2000 using IndiFrag methodology.
 Reference: Sapena et al. (2020) https://doi.org/10.3390/ijgi9070436
 Data source GHSL: https://doi.org/10.2905/jrc-ghsl-10007
 
-Required: GHSL raster data must be extracted to DATA/GHS_BUILT_LDSMT_GLOBE_R2018A_3857_30_V2_0/
+Required: GHSL raster data must be extracted to data_external/GHS_BUILT_LDSMT_GLOBE_R2018A_3857_30_V2_0/
 """
 
-import os
+import argparse
 import sys
 import time
-import argparse
-import numpy as np
-import geopandas as gpd
-import pandas as pd
 from pathlib import Path
+
+import geopandas as gpd
+import numpy as np
 from shapely.ops import unary_union
+
+from utils import BOUNDARIES_PATH as BOUNDARIES_DIR
+from utils import GHSL_PATH as GHSL_DIR
 
 # Import local utilities
 from utils import (
-    PROJECT_ROOT, DATA_PATH, OUTPUT_PATH,
-    BOUNDARIES_PATH as BOUNDARIES_DIR,
-    UTM_ZONES_PATH as UTM_ZONES_DIR,
-    GHSL_PATH as GHSL_DIR,
-    standard_distance, create_fishnet_points, get_mbr_dimensions,
-    calc_compactness, calc_dispersion_index, calc_elongation_ratio,
-    identify_urban_core, identify_second_urban_core,
-    clip_raster_to_geometry, reclassify_raster, polygonize_raster,
-    count_raster_pixels, get_raster_value_counts,
-    lookup_utm_from_shapefile, reproject_geodataframe,
-    ensure_dir, get_fua_list
+    OUTPUT_PATH,
+    calc_compactness,
+    calc_dispersion_index,
+    calc_elongation_ratio,
+    clip_raster_to_geometry,
+    count_raster_pixels,
+    create_fishnet_points,
+    ensure_dir,
+    get_mbr_dimensions,
+    get_raster_value_counts,
+    identify_second_urban_core,
+    identify_urban_core,
+    polygonize_raster,
+    reclassify_raster,
+    standard_distance,
 )
+from utils import UTM_ZONES_PATH as UTM_ZONES_DIR
 
 # =============================================================================
 # Configuration
@@ -48,12 +54,12 @@ BOUNDARIES_PATH = BOUNDARIES_DIR / "Boundaries_3857.shp"
 UTM_ZONES_PATH = UTM_ZONES_DIR / "UTM_Zone_EPSG_3857.shp"
 GHSL_VRT = GHSL_DIR / "V2-0" / "GHS_BUILT_LDSMT_GLOBE_R2018A_3857_30_V2_0.vrt"
 
-# Output directories
-VEC_3857_DIR = ensure_dir(OUTPUT_PATH / "Vec_3857")
-RAS_3857_DIR = ensure_dir(OUTPUT_PATH / "Ras_3857")
-FUA_DIR = ensure_dir(OUTPUT_PATH / "FUAs")
-VEC_00_DIR = ensure_dir(OUTPUT_PATH / "Vec_00")
-RAS_00_DIR = ensure_dir(OUTPUT_PATH / "Ras_00")
+# Output directories (created in main() before processing)
+VEC_3857_DIR = OUTPUT_PATH / "Vec_3857"
+RAS_3857_DIR = OUTPUT_PATH / "Ras_3857"
+FUA_DIR = OUTPUT_PATH / "FUAs"
+VEC_00_DIR = OUTPUT_PATH / "Vec_00"
+RAS_00_DIR = OUTPUT_PATH / "Ras_00"
 
 # Output shapefile with results
 OUTPUT_SHP = OUTPUT_PATH / "Boundaries_SM_2000.shp"
@@ -141,7 +147,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 1: Clip GHSL raster to FUA boundary
         # =================================================================
-        print(f"  Clipping GHSL raster...")
+        print("  Clipping GHSL raster...")
         output_ras_all = RAS_3857_DIR / f"BUILT_{fua_code}_3857.tif"
 
         clip_raster_to_geometry(
@@ -154,12 +160,12 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 2: Get UTM zone and project FUA boundary
         # =================================================================
-        print(f"  Determining UTM zone...")
+        print("  Determining UTM zone...")
         centroid = fua_geometry.centroid
 
         # Find UTM zone
         epsg = None
-        for idx, row in utm_zones_gdf.iterrows():
+        for _idx, row in utm_zones_gdf.iterrows():
             if row.geometry.contains(centroid):
                 epsg = int(row['EPSG'])
                 break
@@ -191,7 +197,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 3: Check cloud cover
         # =================================================================
-        print(f"  Checking cloud cover...")
+        print("  Checking cloud cover...")
         value_counts = get_raster_value_counts(output_ras_all)
         n_null = value_counts.get(0, 0)
         n_total = sum(value_counts.values())
@@ -210,7 +216,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 4: Reclassify to built-up for year 2000
         # =================================================================
-        print(f"  Reclassifying raster for year 2000...")
+        print("  Reclassifying raster for year 2000...")
         output_ras = RAS_00_DIR / f"BUILT_{fua_code}_{DATE}_3857.tif"
 
         reclassify_raster(
@@ -223,13 +229,13 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # Count built-up pixels
         n_pixels = count_raster_pixels(output_ras, value=1)
         if n_pixels == 0:
-            print(f"  WARNING: No built-up pixels found. Skipping...")
+            print("  WARNING: No built-up pixels found. Skipping...")
             return metrics
 
         # =================================================================
         # Step 5: Polygonize raster
         # =================================================================
-        print(f"  Polygonizing raster...")
+        print("  Polygonizing raster...")
         output_vec_3857 = VEC_3857_DIR / f"BUILT_{fua_code}_{DATE}_3857.shp"
 
         built_gdf = polygonize_raster(
@@ -241,7 +247,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 6: Project to UTM
         # =================================================================
-        print(f"  Projecting to UTM...")
+        print("  Projecting to UTM...")
         built_utm = built_gdf.to_crs(f"EPSG:{epsg}")
 
         # Calculate area and perimeter
@@ -254,7 +260,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 7: Calculate spatial metrics for built-up area
         # =================================================================
-        print(f"  Calculating built-up area metrics...")
+        print("  Calculating built-up area metrics...")
 
         # Total urban area and perimeter
         area_u = built_utm['Area'].sum()
@@ -275,13 +281,13 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         metrics['DI_T1'] = calc_dispersion_index(n_patches, n_pixels, largest_area, area_u)
 
         # Area-Weighted Standard Distance (AWSD)
-        print(f"  Calculating AWSD...")
+        print("  Calculating AWSD...")
         sd_weighted = standard_distance(built_utm, weight_col='Area')
 
         # Normalization: create fishnet and calculate max SD
         bounds = fua_utm.total_bounds
         cell_size = 2000  # 2km grid
-        fishnet = create_fishnet_points(bounds, cell_size, fua_utm.unary_union)
+        fishnet = create_fishnet_points(bounds, cell_size, fua_utm.union_all())
         if len(fishnet) > 0:
             fishnet = fishnet.set_crs(f"EPSG:{epsg}")
             sd_max = standard_distance(fishnet)
@@ -295,7 +301,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
         # =================================================================
         # Step 8: Calculate urban core metrics
         # =================================================================
-        print(f"  Identifying urban core (UMZ)...")
+        print("  Identifying urban core (UMZ)...")
 
         # First urban core
         core1 = identify_urban_core(built_utm, area_col='Area', distance=200, iterations=3)
@@ -322,7 +328,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
 
             # Second Urban Core (SL_UC)
             # SL_UC is the largest single connected component of the secondary core
-            print(f"  Identifying second urban core...")
+            print("  Identifying second urban core...")
             core2 = identify_second_urban_core(built_utm, core1, area_col='Area', distance=200, iterations=3)
 
             if len(core2) > 0:
@@ -341,7 +347,7 @@ def process_fua(fua_code, fua_geometry, utm_zones_gdf, results_gdf):
             # Save updated shapefile with UMZ field
             built_utm.to_file(output_vec_utm)
 
-        print(f"  Metrics calculated successfully.")
+        print("  Metrics calculated successfully.")
 
     except Exception as e:
         print(f"  ERROR processing FUA {fua_code}: {e}")
@@ -383,6 +389,10 @@ def main():
         print("\nPlease download and extract GHSL data to:")
         print(f"  {GHSL_DIR}")
         sys.exit(1)
+
+    # Ensure output directories exist before writing
+    for d in (OUTPUT_PATH, VEC_3857_DIR, RAS_3857_DIR, FUA_DIR, VEC_00_DIR, RAS_00_DIR):
+        ensure_dir(d)
 
     # Initialize output
     results_gdf = initialize_output_shapefile()
@@ -447,7 +457,7 @@ def main():
     # Print summary
     total_time = time.time() - start_time
     print("\n" + "=" * 60)
-    print(f"Processing complete!")
+    print("Processing complete!")
     print(f"Total time: {total_time/60:.2f} minutes")
     print(f"Output: {OUTPUT_SHP}")
     print(f"Output: {OUTPUT_CSV}")
