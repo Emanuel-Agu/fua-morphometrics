@@ -8,9 +8,13 @@ authors:
     orcid: "https://orcid.org/0009-0003-9436-1391"
 version: "0.1.0"
 date-released: "2026-04-17"
-doi: "10.5281/zenodo.19635760"
+doi: "10.5281/zenodo.19635759"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.19635759"
+    description: "Concept DOI (always resolves to the latest version)"
 repository-code: "https://github.com/Emanuel-Agu/fua-morphometrics"
-url: "https://doi.org/10.5281/zenodo.19635760"
+url: "https://doi.org/10.5281/zenodo.19635759"
 license: MIT
 keywords:
   - urban morphometrics
@@ -37,3 +41,14 @@ references:
     issue: 7
     start: 436
     doi: "10.3390/ijgi9070436"
+  - type: software
+    authors:
+      - family-names: Sapena
+        given-names: Marta
+      - family-names: Ruiz
+        given-names: Luis A.
+      - family-names: Taubenböck
+        given-names: Hannes
+    title: "Codes and data: Analyzing Links between Spatio-Temporal Metrics of Built-Up Areas and Socio-Economic Indicators on a Semi-Global Scale"
+    year: 2020
+    doi: "10.6084/m9.figshare.12554531"

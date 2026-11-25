@@ -1,0 +1,41 @@
+{
+  "title": "fua-morphometrics: Open-source Python replication and extension of Sapena et al. (2020) spatio-temporal urban morphometrics",
+  "upload_type": "software",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Agu, Emanuel Jose",
+      "orcid": "0009-0003-9436-1391"
+    }
+  ],
+  "keywords": [
+    "urban morphometrics",
+    "functional urban areas",
+    "spatio-temporal metrics",
+    "landscape expansion index",
+    "GHSL",
+    "built-up area",
+    "spatial analysis",
+    "replication"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.3390/ijgi9070436",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.6084/m9.figshare.12554531",
+      "relation": "cites",
+      "resource_type": "software",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.4995/raet.2015.3476",
+      "relation": "cites",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    }
+  ]
+}
