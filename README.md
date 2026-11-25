@@ -9,15 +9,18 @@ Open-source Python 3 **replication and extension** of the spatio-temporal urban 
 **Upstream paper:**
 Sapena, M., Ruiz, L. A., & Taubenböck, H. (2020). Analyzing Links between Spatio-Temporal Metrics of Built-Up Areas and Socio-Economic Indicators on a Semi-Global Scale. *ISPRS International Journal of Geo-Information*, 9(7), 436. [doi:10.3390/ijgi9070436](https://doi.org/10.3390/ijgi9070436)
 
+**Original authors' code & data archive:**
+[doi:10.6084/m9.figshare.12554531](https://doi.org/10.6084/m9.figshare.12554531)
+
 ---
 
 ## Credit: what comes from the original study and what is new here
 
 `fua-morphometrics` is replication software. **The method and the analysis pipeline belong to Sapena, Ruiz & Taubenböck (2020)**: the choice of metrics, the Functional Urban Area sample, the data sources and the step 1–5 workflow are theirs. Their spatial metrics are computed with the IndiFrag toolbox (Sapena & Ruiz 2015, [doi:10.4995/raet.2015.3476](https://doi.org/10.4995/raet.2015.3476)).
 
-- **New here:** the Python 3 code in `scripts/`, written by the author to reproduce that pipeline with open-source libraries (geopandas, rasterio, shapely) instead of Python 2.7 and ArcPy, and the extension to GHSL-B R2023A. It contains no code from the original scripts; a line-by-line comparison (November 2026) found no shared lines.
-- **Not ours:** `original/` holds the original authors' code and `data/preprocessed/` their published results, included for reference and validation. They are not covered by this repository's MIT license.
-- **Development.** The code was written by the author with the assistance of Anthropic's Claude (Claude Opus 4.5 and 4.7, through Claude Code), as recorded in the commit history; the author reviewed and validated all code.
+- **New here:** the Python 3 code in `scripts/`, written by the author to reproduce that pipeline with open-source libraries (geopandas, rasterio, shapely) instead of Python 2.7 and ArcPy. It contains no code copied from the original scripts.
+- **Third-party reference & validation data:** `data/preprocessed/` holds the original authors' published results for validation, and `data/boundaries/` and `data/utm_zones/` hold the reference EU–OECD FUA boundary and UTM zone layers packaged with the upstream study (see [`data/README.md`](data/README.md)). They are **not** covered by this repository's MIT license. The original Python 2.7 / ArcPy and R scripts are not redistributed here; download them directly from [Figshare (doi:10.6084/m9.figshare.12554531)](https://doi.org/10.6084/m9.figshare.12554531).
+- **AI-assisted development:** Code and documentation were developed by the author with the assistance of Anthropic's Claude (via Claude Code), as recorded in the commit history. The author reviewed, tested, and validated all code and outputs against the published reference results.
 
 ---
 
@@ -56,18 +59,14 @@ This replication achieves **>99.99% correlation** with the original results acro
 │   ├── step5_multitemporal_metrics.py
 │   └── validate_outputs.py      # Compare outputs vs original
 │
-├── data/                        # Reference data (included in repo)
-│   ├── boundaries/              # FUA boundary shapefiles
-│   ├── utm_zones/               # UTM zone reference
-│   └── preprocessed/            # Sapena's original results (for validation)
-│
-└── original/                    # Sapena's original code (reference)
-    ├── Code_statistic_analysis/ # Original Python 2.7 scripts
-    ├── Codes_spatio_temporal_analysis/
-    └── README.docx
+└── data/                        # Reference & validation data (not MIT; see data/README.md)
+    ├── README.md                # Provenance & license notice
+    ├── boundaries/              # FUA boundary shapefiles
+    ├── utm_zones/               # UTM zone reference
+    └── preprocessed/            # Sapena's original results (for validation)
 ```
 
-The paper PDF and supplementary material are not redistributed here — follow the [upstream DOI](https://doi.org/10.3390/ijgi9070436) to retrieve them from the publisher (open access, CC-BY).
+The paper PDF, supplementary material, and original ArcPy/R scripts are not redistributed here — follow the [upstream DOI](https://doi.org/10.3390/ijgi9070436) and the [Figshare archive](https://doi.org/10.6084/m9.figshare.12554531) to retrieve them directly.
 
 ---
 
