@@ -10,7 +10,9 @@ _archive/
 # Tool-specific
 .claude/
 
-# Python
+# Python / uv
+.venv/
+venv/
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,6 +22,8 @@ __pycache__/
 .eggs/
 *.egg
 .pytest_cache/
+.ruff_cache/
+.coverage
 
 # IDE
 .idea/
